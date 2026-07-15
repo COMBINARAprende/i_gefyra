@@ -1,0 +1,3145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EL PUENTE · Companion</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0e1a;
+    --bg-2: #111827;
+    --card: #1a2236;
+    --card-2: #232d45;
+    --accent: #f59e0b;
+    --accent-2: #fbbf24;
+    --text: #e5e7eb;
+    --text-dim: #9ca3af;
+    --border: #2d3a5c;
+    --success: #10b981;
+    --danger: #ef4444;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  header {
+    background: rgba(10, 14, 26, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-date {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    color: var(--accent);
+    background: var(--card);
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .logo-icon { font-size: 1.5em; }
+  .clock {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: var(--text-dim);
+    background: var(--card);
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 20px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  nav::-webkit-scrollbar { height: 6px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.9em;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: var(--card-2); color: var(--text); }
+  .nav-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .module { display: none; animation: fadeIn 0.3s; }
+  .module.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .module-title {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--card-2);
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.05);
+  }
+  .drop-zone-icon { font-size: 3em; margin-bottom: 10px; }
+  .drop-zone-text { color: var(--text-dim); margin-top: 8px; font-size: 0.9em; }
+  .btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--accent-2); transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #dc2626; }
+  input[type="text"], input[type="tel"], input[type="email"], textarea, select {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 0.95em;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-dim);
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+  .form-group { margin-bottom: 16px; }
+  .pdf-container {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    min-height: 500px;
+  }
+  .pdf-viewer {
+    width: 100%;
+    height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    overflow: hidden;
+    padding: 16px 60px;
+  }
+  .pdf-viewer canvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  }
+  .pdf-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 10;
+  }
+  .pdf-page-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+  .pdf-page-info {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 20px;
+    border-radius: 20px;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    font-weight: 600;
+  }
+  .pdf-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+  }
+  .pdf-btn:hover { background: var(--accent); color: var(--bg); }
+
+  .fullscreen-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    z-index: 10;
+  }
+  .fullscreen-btn:hover { background: var(--accent); color: var(--bg); }
+  .video-container {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  video {
+    width: 100%;
+    max-height: 70vh;
+    display: block;
+  }
+  .cassette-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .cassette {
+    width: 340px;
+    height: 220px;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    border-radius: 16px;
+    border: 2px solid #3a3a3a;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .cassette-label {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--bg);
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.75em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .cassette-window {
+    background: #0a0a0a;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 20px;
+    position: relative;
+  }
+  .reel {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1a1a1a 30%, #3a3a3a 31%, #3a3a3a 35%, #1a1a1a 36%);
+    border: 3px solid #4a4a4a;
+    position: relative;
+  }
+  .reel.spinning { animation: spin 2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .reel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: #2a2a2a;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid #5a5a5a;
+  }
+  .tape {
+    position: absolute;
+    top: 50%;
+    left: 75px;
+    right: 75px;
+    height: 2px;
+    background: #4a3a2a;
+    transform: translateY(-50%);
+  }
+  .cassette-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .cassette-btn {
+    background: #3a3a3a;
+    border: 1px solid #5a5a5a;
+    color: var(--accent);
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+  }
+  .cassette-btn:hover { background: var(--accent); color: var(--bg); }
+  .cassette-display {
+    background: #0a0a0a;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 6px 10px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    color: var(--accent);
+    margin-top: 8px;
+    min-height: 28px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .viz-canvas {
+    display: block;
+    margin: 12px auto 0;
+    border-radius: 6px;
+    background: #0a0a0a;
+    border: 1px solid #3a3a3a;
+  }
+  .playlist {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .playlist-item {
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .playlist-item:hover { background: var(--card); }
+  .playlist-item.active {
+    background: var(--card);
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+  .playlist-item-icon { font-size: 1.2em; }
+  .playlist-item-title { flex: 1; font-size: 0.9em; }
+  .blog-entry {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .blog-entry-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .blog-entry-date {
+    font-size: 0.8em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .blog-entry-content {
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .blog-entry-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .block-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .block-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85em;
+  }
+  .block-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .flashcard {
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+    margin: 20px auto;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+  .flashcard-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px solid var(--border);
+  }
+  .flashcard-front {
+    background: linear-gradient(135deg, var(--card), var(--card-2));
+    color: var(--text);
+  }
+  .flashcard-back {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--bg);
+    transform: rotateY(180deg);
+  }
+  .flashcard-label {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+  .flashcard-text {
+    font-size: 1.2em;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .flashcard-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .flashcard-counter {
+    font-size: 0.9em;
+    color: var(--text-dim);
+  }
+  .image-viewer-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+  }
+  .image-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .image-container {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 9/16;
+    max-height: 85vh;
+    max-width: 480px;
+  }
+  .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .image-nav-left, .image-nav-right {
+    display: flex;
+    align-items: center;
+  }
+  .image-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    transition: all 0.2s;
+  }
+  .image-btn:hover { background: var(--accent); color: var(--bg); transform: scale(1.1); }
+  .fullscreen-btn-outside {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .fullscreen-btn-outside:hover { background: var(--accent); color: var(--bg); }
+  .image-page-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .image-page-info {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 20px;
+    border-radius: 20px;
+    color: var(--accent);
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    font-weight: 600;
+  }
+  .whatsapp-btn {
+    background: #25D366;
+    color: white;
+    font-size: 1.05em;
+    padding: 12px 24px;
+  }
+  .whatsapp-btn:hover { background: #1ebe5d; }
+  .history-item {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+  }
+  .history-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: var(--text-dim);
+    font-size: 0.85em;
+  }
+  .about-hero {
+    background: linear-gradient(135deg, var(--card), var(--card-2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .about-hero h2 {
+    color: var(--accent);
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+  .about-hero .subtitle {
+    color: var(--text-dim);
+    font-size: 1.1em;
+    margin-bottom: 20px;
+  }
+  .about-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .about-section h3 {
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .about-section p {
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .about-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  .about-section li {
+    padding: 8px 0 8px 24px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .about-section li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: bold;
+  }
+  .about-contact {
+    background: var(--card-2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .about-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 0.95em;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  .modal-title {
+    font-size: 1.5em;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .modal-text {
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  :fullscreen .pdf-viewer,
+  :-webkit-full-screen .pdf-viewer {
+    background: #000;
+    height: 100vh;
+    padding: 24px;
+  }
+  :fullscreen .pdf-controls,
+  :-webkit-full-screen .pdf-controls {
+    padding: 0 24px;
+  }
+  :fullscreen .pdf-page-bar,
+  :-webkit-full-screen .pdf-page-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    z-index: 10;
+  }
+  .help-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .help-section h3 {
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .help-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  .help-section li {
+    padding: 6px 0;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .help-section li strong { color: var(--accent-2); }
+  .config-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .config-section h3 {
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .config-info {
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.9em;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .config-info strong { color: var(--text); }
+  /* ===== BITÁCORA DE VIAJE ===== */
+  .blog-intro {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--card), var(--card-2));
+    border: 1px solid var(--border);
+  }
+  .blog-intro-icon {
+    font-size: 3em;
+    margin-bottom: 12px;
+  }
+  select {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 0.95em;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .blog-prompt-box {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.05));
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .blog-prompt-icon {
+    font-size: 1.4em;
+    flex-shrink: 0;
+  }
+  .blog-prompt-text {
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.6;
+    font-size: 0.95em;
+  }
+  .mood-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mood-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .mood-btn:hover {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .mood-btn.selected {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .blog-stats {
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05));
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+  .blog-stats-content {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .blog-stats-number {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .blog-stats-label {
+    color: var(--text-dim);
+    font-size: 1em;
+  }
+  .blog-stats-message {
+    color: var(--accent-2);
+    font-style: italic;
+    font-size: 0.95em;
+  }
+  .blog-entry {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+  }
+  .blog-entry:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(245,158,11,0.08);
+  }
+  .blog-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .blog-entry-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,158,11,0.1);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+  }
+  .blog-entry-mood {
+    font-size: 1.3em;
+  }
+  .blog-entry-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .blog-entry-date {
+    font-size: 0.8em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .blog-entry-content {
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--card);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .blog-entry-takeaway {
+    background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03));
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--success);
+    font-size: 0.9em;
+    font-style: italic;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .blog-entry-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .example-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .example-modal.active { display: flex; }
+  .example-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .example-content h3 {
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-size: 1.4em;
+  }
+  .example-item {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .example-item-type {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+  }
+  .example-item-text {
+    color: var(--text);
+    line-height: 1.7;
+    font-style: italic;
+    font-size: 0.95em;
+  }
+
+  /* ===== VIDEOS ===== */
+  .video-nav-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .module-title { font-size: 1.4em; }
+    .cassette { width: 280px; height: 180px; }
+    .flashcard { height: 250px; }
+    .flashcard-text { font-size: 1em; }
+    header { padding: 10px; gap: 6px; }
+    .header-date { font-size: 0.8em; padding: 4px 8px; }
+    .clock { font-size: 0.8em; padding: 4px 8px; }
+    .logo { font-size: 1em; }
+    main { padding: 12px; }
+    .image-container { max-width: 100%; }
+    .welcome-main-title { font-size: 2.2em; letter-spacing: 3px; }
+    .welcome-tagline { font-size: 0.9em; letter-spacing: 4px; }
+    .welcome-book-cover { width: 110px; height: 160px; }
+    .book-front { width: 92px; left: 14px; }
+    .book-spine { width: 14px; }
+    .welcome-quote { font-size: 0.85em; }
+    .pdf-viewer { padding: 16px 44px; height: 68vh; }
+    .pdf-controls { padding: 0 6px; }
+    .pdf-btn { width: 36px; height: 36px; }
+    .pdf-page-bar { margin-top: 8px; }
+    .pdf-page-info { padding: 6px 14px; font-size: 0.85em; }
+    .image-viewer-wrap { gap: 6px; }
+    .image-btn { width: 36px; height: 36px; }
+    .fullscreen-btn-outside { top: -44px; width: 38px; height: 38px; }
+    .image-page-bar { margin-top: 8px; }
+    .image-page-info { padding: 6px 14px; font-size: 0.85em; }
+  }
+  .welcome-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #0a0e1a 0%, #111827 50%, #1a2236 100%);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .welcome-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(45,58,92,0.3) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .welcome-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatParticle 8s ease-in-out infinite;
+  }
+  @keyframes floatParticle {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+  }
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+    max-width: 560px;
+    text-align: center;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .welcome-book-cover {
+    width: 140px;
+    height: 200px;
+    position: relative;
+    margin-bottom: 28px;
+    perspective: 800px;
+    animation: bookFloat 4s ease-in-out infinite;
+  }
+  @keyframes bookFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .book-spine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 100%;
+    background: linear-gradient(90deg, #1a1a2e, #2d2d4a);
+    border-radius: 4px 0 0 4px;
+    border-right: 2px solid var(--accent);
+  }
+  .book-front {
+    position: absolute;
+    left: 18px;
+    top: 0;
+    width: 122px;
+    height: 100%;
+    background: linear-gradient(145deg, var(--card), #151b2e);
+    border-radius: 0 6px 6px 0;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .book-title {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .book-subtitle {
+    font-size: 0.5em;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .book-author {
+    font-size: 0.45em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .book-icon {
+    font-size: 1.8em;
+    opacity: 0.8;
+  }
+  .welcome-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin-bottom: 20px;
+    border-radius: 2px;
+  }
+  .welcome-main-title {
+    color: var(--accent);
+    font-size: 3em;
+    font-weight: 800;
+    letter-spacing: 6px;
+    margin-bottom: 4px;
+    text-shadow: 0 0 40px rgba(245,158,11,0.2);
+  }
+  .welcome-tagline {
+    color: var(--accent-2);
+    font-size: 1.1em;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .welcome-desc {
+    color: var(--text-dim);
+    font-size: 1em;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    max-width: 400px;
+  }
+  .welcome-quote {
+    font-style: italic;
+    color: var(--text);
+    font-size: 0.95em;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    padding: 0 20px;
+    position: relative;
+  }
+  .quote-mark {
+    color: var(--accent);
+    font-size: 1.4em;
+    font-family: Georgia, serif;
+    line-height: 0;
+  }
+  .welcome-btn {
+    font-size: 1.15em;
+    padding: 14px 36px;
+    border-radius: 50px;
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+    transition: all 0.3s ease;
+    margin-bottom: 16px;
+  }
+  .welcome-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(245,158,11,0.35);
+  }
+  .welcome-hint {
+    color: var(--text-dim);
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="welcome-screen" id="welcomeScreen">
+  <div class="welcome-bg"></div>
+  <div class="welcome-particles" id="particles"></div>
+  <div class="welcome-content">
+    <div class="welcome-book-cover">
+      <div class="book-spine"></div>
+      <div class="book-front">
+        <div class="book-title">EL PUENTE</div>
+        <div class="book-subtitle">Cruza · Comprende · Transforma</div>
+        <div class="book-author">Marco Antonio Gálvez Estrada</div>
+        <div class="book-icon">🌉</div>
+      </div>
+    </div>
+    <div class="welcome-divider"></div>
+    <h1 class="welcome-main-title">EL PUENTE</h1>
+    <p class="welcome-tagline">Companion</p>
+    <p class="welcome-desc">Un espacio para detenerte, mirar hacia adentro y encontrarte.</p>
+    <div class="welcome-quote">
+      <span class="quote-mark">"</span>
+      Cruzar el puente es decidir que ya no quieres vivir en piloto automático.
+      <span class="quote-mark">"</span>
+    </div>
+    <button class="btn welcome-btn" onclick="enterBridge()">
+      <span>Entrar al puente</span>
+      <span style="font-size:1.3em;">🌉</span>
+    </button>
+    <p class="welcome-hint">Haz clic cuando estés listo. No hay prisa.</p>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">🌉</span>
+    <span>EL PUENTE Companion</span>
+  </div>
+  <div class="header-date" id="headerDate">--/--/----</div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-module="inicio">🏠 Principal</button>
+  <button class="nav-btn" data-module="libro">📄 Leer el Libro EL PUENTE</button>
+  <button class="nav-btn" data-module="videos">🎬 Videos</button>
+  <button class="nav-btn" data-module="musica">🎵 Musicalidad</button>
+  <button class="nav-btn" data-module="blog">📝 Bitácora de viaje</button>
+  <button class="nav-btn" data-module="infografia">📊 Infografías</button>
+  <button class="nav-btn" data-module="tarjetas">🎴 Tarjetas Didácticas</button>
+  <button class="nav-btn" data-module="presentacion">🖼️ Presentación</button>
+  <button class="nav-btn" data-module="comunicacion">💬 Comunicación con Marco</button>
+  <button class="nav-btn" data-module="sobre-marco">👤 Sobre Marco</button>
+  <button class="nav-btn" data-module="ayuda">❓ Ayuda</button>
+  <button class="nav-btn" data-module="config">⚙️ Configuración</button>
+</nav>
+
+<main>
+  <div class="module active" id="module-inicio">
+    <div class="card" style="text-align: center; padding: 40px;">
+      <h1 style="color: var(--accent); font-size: 2.5em; margin-bottom: 10px;">EL PUENTE</h1>
+      <h2 style="color: var(--text-dim); font-size: 1.3em; margin-bottom: 30px;">Companion</h2>
+      <p style="font-size: 1.2em; color: var(--accent-2); letter-spacing: 3px; margin-bottom: 30px;">CRUZA · COMPRENDE · TRANSFORMA</p>
+      <div style="margin: 30px 0;">
+        <p style="color: var(--text-dim); font-style: italic;">✨ BIENVENIDA ✨</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 16px; text-align: center;">★ EL PUENTE STEREO ★</h3>
+      <div class="cassette-wrapper">
+        <div class="cassette">
+          <div class="cassette-label">MODEL EP-1985 · HIGH FIDELITY</div>
+          <div class="cassette-window">
+            <div class="reel" id="reel1"></div>
+            <div class="tape"></div>
+            <div class="reel" id="reel2"></div>
+          </div>
+          <div class="cassette-display" id="cassetteDisplay">-- SIN CASSETTE --</div>
+          <div class="cassette-controls">
+            <button class="cassette-btn" onclick="prevTrack()" title="Anterior">⏮</button>
+            <button class="cassette-btn" onclick="togglePlay()" id="playBtn" title="Play/Pausa">▶</button>
+            <button class="cassette-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
+          </div>
+          <canvas id="vizCanvas1" class="viz-canvas" width="300" height="80"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module" id="module-libro">
+    <h2 class="module-title">📄 Leer el Libro EL PUENTE</h2>
+    <div class="card">
+      <div class="drop-zone" id="pdfDropZone">
+        <div class="drop-zone-icon">📄</div>
+        <div>Arrastra tu PDF aquí o haz clic para seleccionar</div>
+        <div class="drop-zone-text">Formatos: PDF</div>
+        <input type="file" id="pdfInput" accept=".pdf" style="display:none">
+      </div>
+    </div>
+    <div class="pdf-container" id="pdfContainer" style="display:none;">
+      <button class="fullscreen-btn" onclick="togglePdfFullscreen()" title="Pantalla completa">⛶</button>
+      <div class="pdf-viewer" id="pdfViewer"></div>
+      <div class="pdf-controls">
+        <button class="pdf-btn" onclick="pdfPrevPage()" title="Página anterior">◀</button>
+        <button class="pdf-btn" onclick="pdfNextPage()" title="Página siguiente">▶</button>
+      </div>
+    </div>
+    <div class="pdf-page-bar" id="pdfPageBar">
+      <span class="pdf-page-info" id="pdfPageInfo">- / -</span>
+    </div>
+  </div>
+
+  <div class="module" id="module-videos">
+    <h2 class="module-title">🎬 Videos</h2>
+    <div class="card">
+      <p style="color: var(--text-dim); margin-bottom: 16px;">
+        Carga varios videos para armar tu lista de reproducción. Haz clic en cualquier video para reproducirlo.
+      </p>
+      <div class="drop-zone" id="videoDropZone">
+        <div class="drop-zone-icon">🎞️</div>
+        <div>Arrastra tus videos aquí o haz clic para seleccionar</div>
+        <div class="drop-zone-text">Formatos: MP4, WebM, MOV (puedes seleccionar varios a la vez)</div>
+        <input type="file" id="videoInput" accept="video/*" multiple style="display:none">
+      </div>
+    </div>
+    <div class="video-container" id="videoContainer" style="display:none;">
+      <button class="fullscreen-btn" onclick="toggleVideoFullscreen()" title="Pantalla completa">⛶</button>
+      <video id="videoPlayer" controls></video>
+    </div>
+    <div class="card" id="videoPlaylistCard" style="display:none;">
+      <h3 style="color: var(--accent); margin-bottom: 12px;">Lista de reproducción</h3>
+      <div class="playlist" id="videoPlaylist"></div>
+    </div>
+  </div>
+
+  <div class="module" id="module-musica">
+    <h2 class="module-title">🎵 Musicalidad</h2>
+    <div class="card">
+      <p style="color: var(--text-dim); margin-bottom: 16px;">
+        Carga varias canciones MP3 para armar tu lista de reproducción. Se reproducen en el cassette retro 80s. Haz clic en cualquier canción para escucharla.
+      </p>
+      <div class="drop-zone" id="musicDropZone">
+        <div class="drop-zone-icon">🎵</div>
+        <div>Arrastra tus canciones aquí o haz clic para seleccionar</div>
+        <div class="drop-zone-text">Formatos: MP3, WAV, OGG, M4A (puedes seleccionar varios a la vez)</div>
+        <input type="file" id="musicInput" accept="audio/*" multiple style="display:none">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 16px; text-align: center;">★ EL PUENTE STEREO ★</h3>
+      <div class="cassette-wrapper">
+        <div class="cassette">
+          <div class="cassette-label">MODEL EP-1985 · HIGH FIDELITY</div>
+          <div class="cassette-window">
+            <div class="reel" id="reel1b"></div>
+            <div class="tape"></div>
+            <div class="reel" id="reel2b"></div>
+          </div>
+          <div class="cassette-display" id="cassetteDisplay2">-- SIN CASSETTE --</div>
+          <div class="cassette-controls">
+            <button class="cassette-btn" onclick="prevTrack()" title="Anterior">⏮</button>
+            <button class="cassette-btn" onclick="togglePlay()" id="playBtn2" title="Play/Pausa">▶</button>
+            <button class="cassette-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
+          </div>
+          <canvas id="vizCanvas2" class="viz-canvas" width="300" height="80"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 12px;">Lista de reproducción</h3>
+      <div class="playlist" id="playlist">
+        <p style="color: var(--text-dim); text-align: center; padding: 20px;">Carga canciones para comenzar</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="module" id="module-blog">
+    <h2 class="module-title">📝 Bitácora de viaje</h2>
+
+    <div class="card blog-intro">
+      <div class="blog-intro-icon">📖</div>
+      <h3 style="color: var(--accent); margin-bottom: 10px;">Tu libro de vida empieza aquí</h3>
+      <p style="color: var(--text-dim); line-height: 1.7; margin-bottom: 12px;">
+        Este espacio es <strong>tuyo</strong>. No hay reglas, no hay juicios. Solo tú, el presente y lo que necesitas soltar. 
+        Cada entrada que escribas es una página de tu historia. Al final, tendrás un registro de tu viaje: 
+        lo que sentiste, lo que aprendiste, lo que soñaste.
+      </p>
+      <p style="color: var(--accent-2); font-style: italic; font-size: 0.95em;">
+        "El lápiz y el papel no juzgan. Solo escuchan."
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>📌 Título de tu reflexión</label>
+        <input type="text" id="blogTitle" placeholder="Dale un nombre a este momento...">
+      </div>
+
+      <div class="form-group">
+        <label>🎯 Tipo de entrada</label>
+        <select id="blogType" onchange="updateBlogPrompt()">
+          <option value="libre">💭 Pensamiento libre — Suelta todo lo que venga</option>
+          <option value="pasado">🕰️ Carta a mi YO del pasado — Abraza lo que aprendiste</option>
+          <option value="presente">🌿 Reflexión del presente — ¿Qué estás viviendo ahora?</option>
+          <option value="futuro">✨ Carta a mi YO del futuro — Plántale una semilla</option>
+          <option value="aprendizaje">🌙 Aprendizaje del día — ¿Qué te enseñó la vida?</option>
+        </select>
+      </div>
+
+      <div class="blog-prompt-box" id="blogPromptBox">
+        <div class="blog-prompt-icon">💡</div>
+        <div class="blog-prompt-text" id="blogPromptText">
+          Suelta todo. Escribe sin orden. Sin juicio. Solo tú y el papel. ¿Qué necesitas decirte hoy?
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>✍️ Tu reflexión</label>
+        <textarea id="blogContent" placeholder="Empieza a escribir..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>🎭 ¿Cómo te sientes en este momento?</label>
+        <div class="mood-selector" id="moodSelector">
+          <button class="mood-btn" data-mood="😊" onclick="selectMood(this)">😊 En paz</button>
+          <button class="mood-btn" data-mood="🌿" onclick="selectMood(this)">🌿 Esperanzado</button>
+          <button class="mood-btn" data-mood="😔" onclick="selectMood(this)">😔 Nostálgico</button>
+          <button class="mood-btn" data-mood="🔥" onclick="selectMood(this)">🔥 Motivado</button>
+          <button class="mood-btn" data-mood="💫" onclick="selectMood(this)">💫 Reflexivo</button>
+          <button class="mood-btn" data-mood="🌙" onclick="selectMood(this)">🌙 En calma</button>
+        </div>
+        <input type="hidden" id="blogMood" value="">
+      </div>
+
+      <div class="form-group">
+        <label>🎁 ¿Qué me llevo de esto?</label>
+        <input type="text" id="blogTakeaway" placeholder="Una frase, una lección, una promesa...">
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn" onclick="saveBlogEntry()">💾 Guardar entrada</button>
+        <button class="btn btn-secondary" onclick="showExample()">📖 Ver ejemplo</button>
+      </div>
+    </div>
+
+    <div class="card blog-stats" id="blogStats" style="display:none;">
+      <div class="blog-stats-content">
+        <span class="blog-stats-number" id="blogStatsNumber">0</span>
+        <span class="blog-stats-label">páginas de tu historia escritas</span>
+      </div>
+      <div class="blog-stats-message" id="blogStatsMessage"></div>
+    </div>
+
+    <div id="blogEntries"></div>
+  </div>
+
+  <div class="module" id="module-infografia">
+    <h2 class="module-title">📊 Infografías</h2>
+    <div class="card">
+      <div class="drop-zone" id="imageDropZone">
+        <div class="drop-zone-icon">🖼️</div>
+        <div>Arrastra tus infografías aquí o haz clic para seleccionar</div>
+        <div class="drop-zone-text">Formatos: JPG, PNG, GIF, WebP, SVG (puedes seleccionar varias)</div>
+        <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
+      </div>
+    </div>
+    <div class="image-viewer-wrap" id="imageViewerWrap" style="display:none;">
+      <div class="image-nav-left">
+        <button class="image-btn" onclick="prevImage()" title="Anterior">◀</button>
+      </div>
+      <div class="image-center">
+        <div class="image-container" id="imageContainer">
+          <img id="imageViewer" src="" alt="Infografía">
+        </div>
+        <div class="image-page-bar" id="imagePageBar">
+          <span class="image-page-info" id="imagePageInfo2">- / -</span>
+        </div>
+      </div>
+      <div class="image-nav-right">
+        <button class="image-btn" onclick="nextImage()" title="Siguiente">▶</button>
+      </div>
+      <button class="fullscreen-btn-outside" onclick="toggleImageFullscreen()" title="Pantalla completa">⛶</button>
+    </div>
+  </div>
+
+  <div class="module" id="module-tarjetas">
+    <h2 class="module-title">🎴 Tarjetas Didácticas</h2>
+
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 12px;">Importar desde CSV</h3>
+      <p style="color: var(--text-dim); margin-bottom: 12px; font-size: 0.9em;">
+        Sube el archivo CSV con el formato: "pregunta","respuesta"
+      </p>
+      <input type="file" id="csvInput" accept=".csv" style="display:none">
+      <button class="btn btn-secondary" onclick="document.getElementById('csvInput').click()">
+        📥 Cargar Tarjetas desde CSV
+      </button>
+      <p id="flashcardStats" style="color: var(--text-dim); margin-top: 12px; font-size: 0.9em;"></p>
+    </div>
+
+    <div class="card" id="flashcardModule" style="display:none;">
+      <h3 style="color: var(--accent); margin-bottom: 16px;">Selecciona un bloque</h3>
+      <div class="block-selector" id="blockSelector"></div>
+      <button class="btn" onclick="loadRandomCards()" style="margin-bottom: 20px;">
+        🎲 Modo Aleatorio (10 tarjetas)
+      </button>
+
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-inner">
+          <div class="flashcard-front">
+            <div class="flashcard-label">Anverso</div>
+            <div class="flashcard-text" id="cardFront">Pregunta</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="flashcard-label">Reverso</div>
+            <div class="flashcard-text" id="cardBack">Respuesta</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="btn btn-secondary" onclick="prevCard()">◀ Anterior</button>
+        <span class="flashcard-counter" id="cardCounter">1 / 10</span>
+        <button class="btn btn-secondary" onclick="nextCard()">Siguiente ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="module" id="module-presentacion">
+    <h2 class="module-title">🖼️ Presentación</h2>
+    <div class="card">
+      <div class="drop-zone" id="presDropZone">
+        <div class="drop-zone-icon">📽️</div>
+        <div>Arrastra tu presentación aquí o haz clic para seleccionar</div>
+        <div class="drop-zone-text">Formatos: PDF, PPTX, ODP</div>
+        <input type="file" id="presInput" accept=".pdf,.pptx,.odp" style="display:none">
+      </div>
+    </div>
+    <div class="pdf-container" id="presContainer" style="display:none;">
+      <button class="fullscreen-btn" onclick="togglePresFullscreen()" title="Pantalla completa">⛶</button>
+      <div class="pdf-viewer" id="presViewer"></div>
+      <div class="pdf-controls">
+        <button class="pdf-btn" onclick="presPrevPage()" title="Anterior">◀</button>
+        <button class="pdf-btn" onclick="presNextPage()" title="Siguiente">▶</button>
+      </div>
+    </div>
+    <div class="pdf-page-bar" id="presPageBar">
+      <span class="pdf-page-info" id="presPageInfo2">- / -</span>
+    </div>
+  </div>
+
+  <div class="module" id="module-comunicacion">
+    <h2 class="module-title">💬 Comunicación con Marco</h2>
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 12px;">📱 Enviar mensaje por WhatsApp</h3>
+      <p style="color: var(--text-dim); margin-bottom: 20px; line-height: 1.6;">
+        Contacto directo con Marco Antonio Galvez Estrada para dudas, acompañamiento y seguimiento. Tu mensaje se abrirá en WhatsApp y también quedará guardado en tu historial local.
+      </p>
+      <p style="margin-bottom: 20px;"><strong>📞 Marco:</strong> 55 2268 5235</p>
+
+      <div class="form-group">
+        <label>Tu nombre *</label>
+        <input type="text" id="commName" placeholder="Tu nombre completo">
+      </div>
+      <div class="form-group">
+        <label>Tu teléfono *</label>
+        <input type="tel" id="commPhone" placeholder="Tu número de contacto">
+      </div>
+      <div class="form-group">
+        <label>Tu mensaje *</label>
+        <textarea id="commMessage" placeholder="Escribe tu mensaje aquí..."></textarea>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn whatsapp-btn" onclick="sendWhatsApp()">📱 Enviar por WhatsApp</button>
+        <button class="btn btn-secondary" onclick="saveOnly()">💾 Solo guardar en historial</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color: var(--accent); margin-bottom: 12px;">📚 Historial de mensajes</h3>
+      <div id="commHistory"></div>
+    </div>
+  </div>
+
+  <div class="module" id="module-sobre-marco">
+    <h2 class="module-title">👤 Sobre Marco</h2>
+
+    <div class="about-hero">
+      <h2>Marco Antonio Gálvez Estrada</h2>
+      <p class="subtitle">Consultor en Desarrollo Humano & Creador de Historias Extraordinarias</p>
+      <p style="color: var(--accent-2); font-size: 1.1em; font-style: italic;">
+        "Aprende · Crece · Transforma"
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3>🌉 Semblanza</h3>
+      <p>Marco Antonio Gálvez Estrada es psicólogo organizacional con más de 15 años acompañando a personas y equipos en su camino de crecimiento. Su trabajo no se reduce a capacitar organizaciones: se trata de crear espacios donde las personas puedan aprender, conectarse consigo mismas y con los demás, y transformar esa conexión en acción concreta.</p>
+      <p>Desde los inicios de su carrera, Marco sintió que la verdadera transformación organizacional nace cuando las personas se sienten vistas. No se trata de procesos fríos ni de fórmulas mágicas, sino de diseñar experiencias que resuenen con quienes las viven. Por eso, a lo largo de su trayectoria ha combinado tres pasiones que parecen distintas pero que para él son una sola: la psicología, el diseño instruccional y la producción de contenidos digitales.</p>
+      <p>Ha trabajado desde adentro de las organizaciones —como coordinador de capacitación y recursos humanos en empresas como Grupo Qualem y JC Comercial y de Servicios— y también desde afuera, como consultor independiente a través de <strong>COMBINAR Aprende</strong>, su proyecto personal donde une personas, ideas y experiencias para que el aprendizaje deje huella. Ha acompañado a líderes, equipos operativos, instituciones educativas, emprendedores y PYMEs. En todos los casos, su norte ha sido el mismo: que el cambio sea real, recordado y vivido.</p>
+      <p>Marco cree en el aprendizaje que se siente, no en la información que se olvida. Facilita talleres de liderazgo, comunicación asertiva e inteligencia emocional con una metodología vivencial donde los participantes no solo escuchan: experimentan, se mueven, se encuentran. Diseña contenidos formativos —manuales, infografías, videos, materiales didácticos— para que las organizaciones puedan seguir creciendo incluso cuando él no está en la sala.</p>
+      <p><strong>EL PUENTE</strong> nace de esta misma convicción: que las personas y las organizaciones no son mundos separados. Cuando una persona cruza hacia adentro, cuando se atreve a habitar su vida con más presencia, todo a su alrededor cambia. El puente que propone Marco no conecta solo dos orillas: conecta lo personal con lo colectivo, lo interior con lo que hacemos cada día.</p>
+      <p>Vive en Nicolás Romero, Estado de México. Cuando no está diseñando una experiencia de aprendizaje o facilitando un taller, probablemente está creando algo: una infografía, un video, una nueva forma de decir lo mismo para que alguien más lo entienda mejor.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>📬 Contacto</h3>
+      <div class="about-contact">
+        <div class="about-contact-item">📧 marcombinar@gmail.com</div>
+        <div class="about-contact-item">📞 55 2268 5235</div>
+        <div class="about-contact-item">📍 Nicolás Romero, Estado de México</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="module" id="module-ayuda">
+    <h2 class="module-title">❓ Ayuda</h2>
+
+    <div class="help-section">
+      <h3>🌉 Bienvenido a EL PUENTE Companion</h3>
+      <p style="line-height: 1.7; color: var(--text);">
+        Esta aplicación es tu compañero personal para explorar el contenido de "EL PUENTE" de Marco Antonio Galvez Estrada. Todo funciona 100% local en tu navegador: tus archivos, reflexiones y mensajes nunca salen de tu dispositivo (excepto cuando envías WhatsApp a Marco).
+      </p>
+    </div>
+
+    <div class="help-section">
+      <h3>📌 Cómo usar cada módulo</h3>
+      <ul>
+        <li><strong>📄 Libro:</strong> carga PDFs y léelos en pantalla completa (botón ⛶). Dentro del modo pantalla completa puedes navegar con los botones ◀ ▶ o con las flechas del teclado. También puedes acercar y alejar con + y −.</li>
+        <li><strong>🎬 Videos:</strong> carga varios MP4, WebM o MOV y navega entre ellos con la lista de reproducción. Reproduce en pantalla completa.</li>
+        <li><strong>🎵 Musicalidad:</strong> carga varios MP3 para armar tu lista. El reproductor cassette retro 80s está disponible directamente al entrar al módulo y también en el inicio. La música sigue sonando aunque cambies de módulo.</li>
+        <li><strong>📝 Bitácora de viaje:</strong> escribe cartas a tu yo del pasado, presente y futuro. Elige tu estado de ánimo, escribe lo que aprendiste y guarda tu historia. Cada entrada es una página de tu libro de vida.</li>
+        <li><strong>📊 Infografías:</strong> carga varias imágenes y navega entre ellas con los controles ◀ ▶ o con las flechas del teclado. Formato vertical optimizado.</li>
+        <li><strong>🎴 Tarjetas Didácticas:</strong> carga el CSV con las 50 preguntas del libro y estudia por bloques de 10 tarjetas, o usa el modo aleatorio. Toca la tarjeta para voltearla.</li>
+        <li><strong>🖼️ Presentación:</strong> carga PDF/PPTX/ODP en pantalla completa.</li>
+        <li><strong>💬 Comunicación:</strong> envía mensajes a Marco por WhatsApp (55 2268 5235) incluyendo tu nombre y teléfono para que pueda darte seguimiento.</li>
+        <li><strong>👤 Sobre Marco:</strong> conoce la trayectoria profesional y el enfoque de trabajo de Marco Antonio Gálvez Estrada.</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <h3>⌨️ Atajos de teclado</h3>
+      <ul>
+        <li><strong>Espacio:</strong> play/pausa en el reproductor musical</li>
+        <li><strong>← / →:</strong> navegar en PDFs, presentaciones, infografías y tarjetas</li>
+        <li><strong>F:</strong> pantalla completa</li>
+        <li><strong>Esc:</strong> cerrar modales o salir de pantalla completa</li>
+      </ul>
+    </div>
+
+    <div class="help-section">
+      <h3>🔒 Privacidad</h3>
+      <p style="line-height: 1.7; color: var(--text);">
+        Todo se guarda en IndexedDB de tu navegador. Puedes exportar/importar tus datos desde Configuración.
+      </p>
+    </div>
+  </div>
+
+  <div class="module" id="module-config">
+    <h2 class="module-title">⚙️ Configuración</h2>
+
+    <div class="config-section">
+      <h3>📦 Gestión de datos</h3>
+      <p style="color: var(--text-dim); margin-bottom: 16px; line-height: 1.6;">
+        Exporta todos tus datos a un archivo JSON o impórtalos desde uno existente. También puedes limpiar todo el almacenamiento (con confirmación).
+      </p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn" onclick="exportData()">📤 Exportar datos (JSON)</button>
+        <button class="btn btn-secondary" onclick="importData()">📥 Importar datos (JSON)</button>
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpiar todo</button>
+      </div>
+      <input type="file" id="importInput" accept=".json" style="display:none">
+    </div>
+
+    <div class="config-section">
+      <h3>ℹ️ Información técnica esencial</h3>
+      <div class="config-info">
+        <p><strong>Versión:</strong> 1.2.0</p>
+        <p><strong>Almacenamiento:</strong> IndexedDB (local en tu navegador)</p>
+        <p><strong>Fecha del sistema:</strong> <span id="systemDate"></span></p>
+        <p><strong>Navegador:</strong> <span id="browserInfo"></span></p>
+        <p style="margin-top: 12px;"><strong>Desarrollado para:</strong> COMBINAR Aprende · EL PUENTE de Marco Antonio Galvez Estrada</p>
+      </div>
+    </div>
+
+    <div class="config-section">
+      <h3>💡 ¿Por qué mantener esta sección?</h3>
+      <p style="color: var(--text); line-height: 1.7; margin-bottom: 12px;">
+        Esta sección puede parecer técnica, pero cumple una función importante: <strong>te da control total sobre tus datos</strong>.
+      </p>
+      <ul style="color: var(--text); line-height: 1.8; padding-left: 20px;">
+        <li>Puedes <strong>respaldar</strong> todas tus reflexiones, mensajes y configuración en un archivo.</li>
+        <li>Puedes <strong>migrar</strong> tus datos a otro dispositivo o navegador.</li>
+        <li>Puedes <strong>limpiar</strong> todo si necesitas empezar de nuevo.</li>
+      </ul>
+      <p style="color: var(--text-dim); margin-top: 12px; font-size: 0.9em;">
+        No necesitas entender JSON para usar los botones: solo haz clic y la plataforma hace el trabajo por ti.
+      </p>
+    </div>
+  </div>
+</main>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h3 class="modal-title" id="confirmTitle">¿Estás seguro?</h3>
+    <p class="modal-text" id="confirmText">Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audioPlayer" preload="none"></audio>
+
+<script>
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+let db;
+let currentModule = 'inicio';
+let pdfDoc = null;
+let pdfCurrentPage = 1;
+let pdfTotalPages = 0;
+let pdfScale = 1.5;
+let presDoc = null;
+let presCurrentPage = 1;
+let presTotalPages = 0;
+let playlist = [];
+let currentTrackIndex = 0;
+let isPlaying = false;
+let flashcards = [];
+let currentCards = [];
+let currentCardIndex = 0;
+let confirmCallback = null;
+
+// Infografías
+let images = [];
+let currentImageIndex = 0;
+
+// Videos
+let videoPlaylist = [];
+let currentVideoIndex = 0;
+
+// Bitácora
+let selectedMood = '';
+
+// Audio visualizer
+let audioCtx = null;
+let analyser = null;
+let source = null;
+let vizAnimationId = null;
+
+const vizCanvas1 = document.getElementById('vizCanvas1');
+const vizCanvas2 = document.getElementById('vizCanvas2');
+
+
+const blogPrompts = {
+  libre: {
+    text: "Suelta todo. Escribe sin orden. Sin juicio. Solo tú y el papel. ¿Qué necesitas decirte hoy?",
+    placeholder: "Empieza a escribir lo que venga a tu mente..."
+  },
+  pasado: {
+    text: "Querido yo del pasado... Hoy entiendo que lo que viviste fue necesario. Gracias por...",
+    placeholder: "Escribe a quien fuiste. Abraza lo que aprendiste de esa versión tuya..."
+  },
+  presente: {
+    text: "En este momento exacto, mi cuerpo siente... mi mente piensa... mi corazón necesita...",
+    placeholder: "Describe lo que estás viviendo ahora. Sé honesto contigo..."
+  },
+  futuro: {
+    text: "Querido yo del futuro... Hoy te escribo para recordarte que... Te pido que no olvides...",
+    placeholder: "Plántale una semilla a tu yo futuro. ¿Qué le quieres decir? ¿Qué le prometes?"
+  },
+  aprendizaje: {
+    text: "Hoy la vida me enseñó que... Lo que me costó aprender fue... Mañana haré diferente...",
+    placeholder: "¿Qué aprendizaje te dejó este día? ¿Qué harías diferente?"
+  }
+};
+
+const blogTypeLabels = {
+  libre: '💭 Libre',
+  pasado: '🕰️ Al pasado',
+  presente: '🌿 Presente',
+  futuro: '✨ Al futuro',
+  aprendizaje: '🌙 Aprendizaje'
+};
+
+const blogStatsMessages = [
+  { min: 0, max: 0, text: "Tu libro de vida está en blanco. Escribe la primera página." },
+  { min: 1, max: 4, text: "Ya empezaste. Cada página cuenta. Sigue escribiendo." },
+  { min: 5, max: 9, text: "¡5 capítulos de tu historia! Estás construyendo algo hermoso." },
+  { min: 10, max: 19, text: "10 entradas. Tu voz ya tiene eco. No pares." },
+  { min: 20, max: 29, text: "20 páginas de autenticidad. Eres un escritor de tu propia vida." },
+  { min: 30, max: 49, text: "30 entradas. Tu bitácora es un tesoro. Sigue sembrando." },
+  { min: 50, max: 99, text: "¡Medio siglo de reflexiones! Tu historia es extraordinaria." },
+  { min: 100, max: 9999, text: "100+ páginas. Has escrito un libro completo de vida." }
+];
+
+function initViz() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 64;
+    const audioPlayer = document.getElementById('audioPlayer');
+    source = audioCtx.createMediaElementSource(audioPlayer);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  }
+}
+
+function drawViz() {
+  if (!analyser) return;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  analyser.getByteFrequencyData(dataArray);
+
+  [vizCanvas1, vizCanvas2].forEach(canvas => {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const barCount = 32;
+    const barWidth = (w / barCount) - 2;
+    let x = 1;
+
+    for (let i = 0; i < barCount; i++) {
+      const dataIndex = Math.floor(i * (bufferLength / barCount));
+      const value = dataArray[dataIndex] || 0;
+      const barHeight = (value / 255) * h * 0.9;
+      const gradient = ctx.createLinearGradient(0, h, 0, h - barHeight);
+      gradient.addColorStop(0, '#f59e0b');
+      gradient.addColorStop(1, '#fbbf24');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, h - barHeight, barWidth, barHeight);
+      x += barWidth + 2;
+    }
+  });
+
+  vizAnimationId = requestAnimationFrame(drawViz);
+}
+
+function stopViz() {
+  if (vizAnimationId) {
+    cancelAnimationFrame(vizAnimationId);
+    vizAnimationId = null;
+  }
+  [vizCanvas1, vizCanvas2].forEach(canvas => {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+}
+
+function startViz() {
+  if (vizAnimationId) cancelAnimationFrame(vizAnimationId);
+  drawViz();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDB();
+  initClock();
+  initNavigation();
+  initDropZones();
+  initKeyboardShortcuts();
+  initAudioEvents();
+  initVideoEvents();
+  loadBlogEntries();
+  loadCommHistory();
+  initSystemInfo();
+  initFullscreenListener();
+  initPresFullscreenListener();
+  initParticles();
+});
+
+function enterBridge() {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  localStorage.setItem('bridgeEntered', 'true');
+}
+
+function initParticles() {
+  const container = document.getElementById('particles');
+  if (!container) return;
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDelay = Math.random() * 8 + 's';
+    p.style.animationDuration = (6 + Math.random() * 6) + 's';
+    p.style.width = (2 + Math.random() * 3) + 'px';
+    p.style.height = p.style.width;
+    container.appendChild(p);
+  }
+}
+
+if (localStorage.getItem('bridgeEntered') === 'true') {
+  document.getElementById('welcomeScreen').style.display = 'none';
+}
+
+function initClock() {
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+
+    const d = String(now.getDate()).padStart(2, '0');
+    const mo = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    document.getElementById('headerDate').textContent = `${d}/${mo}/${y}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function initNavigation() {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const module = btn.dataset.module;
+      switchModule(module);
+    });
+  });
+}
+
+function switchModule(moduleName) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+
+  document.querySelector(`[data-module="${moduleName}"]`).classList.add('active');
+  document.getElementById(`module-${moduleName}`).classList.add('active');
+  currentModule = moduleName;
+  window.scrollTo(0, 0);
+}
+
+function initDB() {
+  const request = indexedDB.open('ElPuenteDB', 1);
+
+  request.onerror = () => console.error('Error al abrir IndexedDB');
+
+  request.onsuccess = (e) => {
+    db = e.target.result;
+    loadBlogEntries();
+    loadCommHistory();
+  };
+
+  request.onupgradeneeded = (e) => {
+    const database = e.target.result;
+    if (!database.objectStoreNames.contains('blog')) {
+      database.createObjectStore('blog', { keyPath: 'id', autoIncrement: true });
+    }
+    if (!database.objectStoreNames.contains('communication')) {
+      database.createObjectStore('communication', { keyPath: 'id', autoIncrement: true });
+    }
+  };
+}
+
+function dbAdd(storeName, data) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+    const request = store.add(data);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function dbGetAll(storeName) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([storeName], 'readonly');
+    const store = transaction.objectStore(storeName);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function dbDelete(storeName, id) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function dbClear(storeName) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+    const request = store.clear();
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function initDropZones() {
+  setupDropZone('pdfDropZone', 'pdfInput', handlePdfUpload);
+  setupDropZone('videoDropZone', 'videoInput', handleVideoUpload);
+  setupDropZone('musicDropZone', 'musicInput', handleMusicUpload);
+  setupDropZone('imageDropZone', 'imageInput', handleImageUpload);
+  setupDropZone('presDropZone', 'presInput', handlePresUpload);
+
+  document.getElementById('csvInput').addEventListener('change', handleCsvUpload);
+  document.getElementById('importInput').addEventListener('change', handleImportFile);
+}
+
+function setupDropZone(zoneId, inputId, handler) {
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+
+  zone.addEventListener('click', () => input.click());
+
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('dragover');
+  });
+
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handler(files);
+  });
+
+  input.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handler(e.target.files);
+  });
+}
+
+async function handlePdfUpload(files) {
+  const file = files[0];
+  if (!file || file.type !== 'application/pdf') {
+    alert('Por favor selecciona un archivo PDF válido');
+    return;
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+
+  try {
+    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    pdfTotalPages = pdfDoc.numPages;
+    pdfCurrentPage = 1;
+
+    document.getElementById('pdfContainer').style.display = 'block';
+    renderPdfPage(pdfCurrentPage);
+  } catch (err) {
+    console.error('Error al cargar PDF:', err);
+    alert('Error al cargar el PDF. Verifica que el archivo no esté dañado.');
+  }
+}
+
+function getPdfFitScale(page) {
+  const viewer = document.getElementById('pdfViewer');
+  const containerW = viewer.clientWidth - 32;
+  const containerH = viewer.clientHeight - 32;
+  const base = page.getViewport({ scale: 1 });
+  const scaleW = containerW / base.width;
+  const scaleH = containerH / base.height;
+  return Math.min(scaleW, scaleH) * 0.98;
+}
+
+async function renderPdfPage(pageNum) {
+  if (!pdfDoc) return;
+
+  const page = await pdfDoc.getPage(pageNum);
+  const fitScale = getPdfFitScale(page);
+  pdfScale = Math.max(fitScale, 0.3);
+
+  const viewport = page.getViewport({ scale: pdfScale });
+
+  const viewer = document.getElementById('pdfViewer');
+  viewer.innerHTML = '';
+
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+  canvas.style.maxWidth = '100%';
+  canvas.style.maxHeight = '100%';
+  canvas.style.objectFit = 'contain';
+
+  viewer.appendChild(canvas);
+
+  await page.render({
+    canvasContext: context,
+    viewport: viewport
+  }).promise;
+
+  document.getElementById('pdfPageInfo').textContent = `${pdfCurrentPage} / ${pdfTotalPages}`;
+}
+
+function pdfPrevPage() {
+  if (!pdfDoc || pdfCurrentPage <= 1) return;
+  pdfCurrentPage--;
+  renderPdfPage(pdfCurrentPage);
+}
+
+function pdfNextPage() {
+  if (!pdfDoc || pdfCurrentPage >= pdfTotalPages) return;
+  pdfCurrentPage++;
+  renderPdfPage(pdfCurrentPage);
+}
+
+function pdfZoomIn() {
+  pdfScale = Math.min(pdfScale + 0.25, 3.0);
+  if (pdfDoc) renderPdfPage(pdfCurrentPage);
+}
+
+function pdfZoomOut() {
+  pdfScale = Math.max(pdfScale - 0.25, 0.75);
+  if (pdfDoc) renderPdfPage(pdfCurrentPage);
+}
+
+function togglePdfFullscreen() {
+  const container = document.getElementById('pdfContainer');
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(err => console.log(err));
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function initFullscreenListener() {
+  let resizeTimer;
+  document.addEventListener('fullscreenchange', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (pdfDoc) renderPdfPage(pdfCurrentPage);
+    }, 400);
+  });
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (pdfDoc) renderPdfPage(pdfCurrentPage);
+    }, 300);
+  });
+}
+
+function handleVideoUpload(files) {
+  const videoFiles = Array.from(files).filter(f => f.type.startsWith('video/'));
+
+  if (videoFiles.length === 0) {
+    alert('Por favor selecciona archivos de video válidos');
+    return;
+  }
+
+  videoFiles.forEach(file => {
+    const url = URL.createObjectURL(file);
+    const name = file.name.replace(/\.[^/.]+$/, '');
+    videoPlaylist.push({ title: name, url: url, file: file });
+  });
+
+  renderVideoPlaylist();
+
+  if (videoPlaylist.length > 0 && currentVideoIndex === 0) {
+    loadVideo(0);
+  }
+}
+
+function renderVideoPlaylist() {
+  const container = document.getElementById('videoPlaylist');
+  const card = document.getElementById('videoPlaylistCard');
+
+  if (videoPlaylist.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">Carga videos para comenzar</p>';
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  container.innerHTML = videoPlaylist.map((video, index) => `
+    <div class="playlist-item ${index === currentVideoIndex ? 'active' : ''}" onclick="loadVideo(${index}); playVideo();">
+      <span class="playlist-item-icon">🎬</span>
+      <span class="playlist-item-title">${escapeHtml(video.title)}</span>
+    </div>
+  `).join('');
+}
+
+function loadVideo(index) {
+  if (index < 0 || index >= videoPlaylist.length) return;
+
+  currentVideoIndex = index;
+  const video = videoPlaylist[index];
+  const player = document.getElementById('videoPlayer');
+
+  player.src = video.url;
+  player.load();
+
+  document.getElementById('videoContainer').style.display = 'block';
+  renderVideoPlaylist();
+}
+
+function playVideo() {
+  const player = document.getElementById('videoPlayer');
+  const playPromise = player.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(err => console.error('Error al reproducir video:', err));
+  }
+}
+
+function nextVideo() {
+  if (videoPlaylist.length === 0) return;
+  currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
+  loadVideo(currentVideoIndex);
+  playVideo();
+}
+
+function prevVideo() {
+  if (videoPlaylist.length === 0) return;
+  currentVideoIndex = (currentVideoIndex - 1 + videoPlaylist.length) % videoPlaylist.length;
+  loadVideo(currentVideoIndex);
+  playVideo();
+}
+
+function toggleVideoFullscreen() {
+  const container = document.getElementById('videoContainer');
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(err => console.log(err));
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// Evento cuando termina un video
+function initVideoEvents() {
+  const player = document.getElementById('videoPlayer');
+  player.addEventListener('ended', () => {
+    nextVideo();
+  });
+}
+
+function handleMusicUpload(files) {
+  const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
+
+  if (audioFiles.length === 0) {
+    alert('Por favor selecciona archivos de audio válidos');
+    return;
+  }
+
+  audioFiles.forEach(file => {
+    const url = URL.createObjectURL(file);
+    const name = file.name.replace(/\.[^/.]+$/, '');
+    playlist.push({ title: name, url: url, file: file });
+  });
+
+  renderPlaylist();
+
+  if (playlist.length > 0 && currentTrackIndex === 0) {
+    loadTrack(0);
+  }
+}
+
+function renderPlaylist() {
+  const container = document.getElementById('playlist');
+
+  if (playlist.length === 0) {
+    container.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">Carga canciones para comenzar</p>';
+    return;
+  }
+
+  container.innerHTML = playlist.map((track, index) => `
+    <div class="playlist-item ${index === currentTrackIndex ? 'active' : ''}" onclick="loadTrack(${index}); playAudio();">
+      <span class="playlist-item-icon">🎵</span>
+      <span class="playlist-item-title">${escapeHtml(track.title)}</span>
+    </div>
+  `).join('');
+}
+
+function loadTrack(index) {
+  if (index < 0 || index >= playlist.length) return;
+
+  currentTrackIndex = index;
+  const track = playlist[index];
+  const audio = document.getElementById('audioPlayer');
+
+  audio.src = track.url;
+  audio.load();
+
+  const title = track.title.toUpperCase();
+  document.getElementById('cassetteDisplay').textContent = title;
+  document.getElementById('cassetteDisplay2').textContent = title;
+
+  renderPlaylist();
+}
+
+function playAudio() {
+  const audio = document.getElementById('audioPlayer');
+
+  if (!audio.src || audio.src === window.location.href) {
+    if (playlist.length > 0) {
+      loadTrack(currentTrackIndex);
+    } else {
+      alert('Primero carga canciones en la lista de reproducción');
+      return;
+    }
+  }
+
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  const playPromise = audio.play();
+
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      isPlaying = true;
+      updatePlayButtons();
+      startReels();
+      initViz();
+      startViz();
+    }).catch(err => {
+      console.error('Error al reproducir:', err);
+      alert('No se pudo reproducir el audio. Intenta hacer clic de nuevo o verifica el archivo.');
+    });
+  }
+}
+
+function togglePlay() {
+  const audio = document.getElementById('audioPlayer');
+
+  if (playlist.length === 0) {
+    alert('Primero carga canciones en la lista de reproducción');
+    return;
+  }
+
+  if (audio.paused) {
+    playAudio();
+  } else {
+    audio.pause();
+  }
+}
+
+function updatePlayButtons() {
+  const icon = isPlaying ? '⏸' : '▶';
+  document.getElementById('playBtn').textContent = icon;
+  document.getElementById('playBtn2').textContent = icon;
+}
+
+function prevTrack() {
+  if (playlist.length === 0) return;
+  currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+  loadTrack(currentTrackIndex);
+  if (isPlaying) playAudio();
+}
+
+function nextTrack() {
+  if (playlist.length === 0) return;
+  currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+  loadTrack(currentTrackIndex);
+  if (isPlaying) playAudio();
+}
+
+function startReels() {
+  document.querySelectorAll('.reel').forEach(reel => reel.classList.add('spinning'));
+}
+
+function stopReels() {
+  document.querySelectorAll('.reel').forEach(reel => reel.classList.remove('spinning'));
+}
+
+function initAudioEvents() {
+  const audioPlayer = document.getElementById('audioPlayer');
+
+  audioPlayer.addEventListener('ended', () => {
+    nextTrack();
+  });
+
+  audioPlayer.addEventListener('pause', () => {
+    isPlaying = false;
+    updatePlayButtons();
+    stopReels();
+    stopViz();
+  });
+
+  audioPlayer.addEventListener('play', () => {
+    isPlaying = true;
+    updatePlayButtons();
+    startReels();
+    initViz();
+    startViz();
+  });
+
+  audioPlayer.addEventListener('error', (e) => {
+    console.error('Error de audio:', e);
+  });
+}
+
+function updateBlogPrompt() {
+  const type = document.getElementById('blogType').value;
+  const prompt = blogPrompts[type];
+  document.getElementById('blogPromptText').textContent = prompt.text;
+  document.getElementById('blogContent').placeholder = prompt.placeholder;
+}
+
+function selectMood(btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood = btn.dataset.mood;
+  document.getElementById('blogMood').value = selectedMood;
+}
+
+function showExample() {
+  const type = document.getElementById('blogType').value;
+  const modal = document.createElement('div');
+  modal.className = 'example-modal active';
+  modal.id = 'exampleModal';
+  modal.innerHTML = `
+    <div class="example-content">
+      <h3>📖 Ejemplos para inspirarte</h3>
+      <div id="exampleList"></div>
+      <button class="btn" onclick="closeExample()" style="margin-top: 16px; width: 100%;">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const examples = getExamples(type);
+  document.getElementById('exampleList').innerHTML = examples.map(ex => `
+    <div class="example-item">
+      <div class="example-item-type">${ex.type}</div>
+      <div class="example-item-text">${ex.text}</div>
+    </div>
+  `).join('');
+}
+
+function closeExample() {
+  const modal = document.getElementById('exampleModal');
+  if (modal) modal.remove();
+}
+
+function getExamples(type) {
+  const allExamples = {
+    libre: [
+      { type: '💭 Pensamiento libre', text: 'Hoy no sé exactamente qué siento. Hay un nudo en el pecho que no encuentra nombre. No es tristeza, no es miedo... es como si algo dentro de mí estuviera esperando a que me detenga lo suficiente para poder hablar.' },
+      { type: '💭 Pensamiento libre', text: 'Me di cuenta de que llevo años corriendo detrás de trenes que no se mueven. Hoy decidí sentarme en el andén y respirar. Doce minutos. Eso es todo lo que necesitaba.' }
+    ],
+    pasado: [
+      { type: '🕰️ Carta al YO del pasado', text: 'Querido Marco de hace tres años: Hoy entiendo que correr detrás del tren que no se movía era una metáfora de mi vida. Gracias por correr. Gracias por cansarte. Gracias por decidir, ese día en la estación de tren, que ya no querías vivir así. Sin esa versión tuya que se atrevió a cansarse, no estaría aquí escribiéndote.' },
+      { type: '🕰️ Carta al YO del pasado', text: 'A la versión de mí que tenía miedo de fallar: Fallaste. Y aquí sigues. Y estás bien. Mejor que bien. El fracaso no te destruyó, te moldeó. Gracias por atreverte.' }
+    ],
+    presente: [
+      { type: '🌿 Reflexión del presente', text: 'En este momento exacto, mi cuerpo siente pesadez en los hombros. Mi mente piensa en todo lo que debo hacer mañana. Mi corazón necesita que le diga: "estás bien, no tienes que resolverlo todo hoy".' },
+      { type: '🌿 Reflexión del presente', text: 'Hoy estoy en paz. No porque todo esté resuelto, sino porque decidí que mi paz no depende de que todo esté resuelto. Es la primera vez que siento esto y quiero recordarlo.' }
+    ],
+    futuro: [
+      { type: '✨ Carta al YO del futuro', text: 'Querido Marco de dentro de un año: Hoy te escribo desde la estación donde una vez corrí sin sentido. Te planto esta semilla: no importa dónde estés, lo que importa es que estés presente. No olvides respirar. No olvides que el tren no se movía y que aprendiste a caminar.' },
+      { type: '✨ Carta al YO del futuro', text: 'A mi yo de dentro de seis meses: Espero que hayas seguido escribiendo. Espero que hayas recordado que las páginas en blanco no son vacío, son posibilidad. No dejes de cruzar puentes.' }
+    ],
+    aprendizaje: [
+      { type: '🌙 Aprendizaje del día', text: 'Hoy la vida me enseñó que pararse no es quedarse atrás. Vi a una mujer correr por un tren que no se movía y entendí: a veces corremos por inercia, no por necesidad. Lo que me costó aprender fue que la pausa también es movimiento. Mañana haré diferente: me preguntaré "¿este tren realmente se está yendo?" antes de correr.' },
+      { type: '🌙 Aprendizaje del día', text: 'Aprendí que no puedo controlar el ruido del mundo, pero sí puedo elegir la paz de mi interior. El aprendizaje no fue fácil: me costó varias noches sin dormir. Pero hoy, por primera vez, elegí el silencio sobre el escándalo. Eso es libertad.' }
+    ]
+  };
+  return allExamples[type] || allExamples.libre;
+}
+
+function getBlogStatsMessage(count) {
+  for (const range of blogStatsMessages) {
+    if (count >= range.min && count <= range.max) {
+      return range.text;
+    }
+  }
+  return blogStatsMessages[0].text;
+}
+
+async function saveBlogEntry() {
+  try {
+    const title = document.getElementById('blogTitle').value.trim();
+    const content = document.getElementById('blogContent').value.trim();
+    const type = document.getElementById('blogType').value;
+    const mood = document.getElementById('blogMood').value;
+    const takeaway = document.getElementById('blogTakeaway').value.trim();
+
+    if (!title || !content) {
+      alert('Por favor completa el título y tu reflexión');
+      return;
+    }
+
+    const entry = {
+      title: title,
+      content: content,
+      type: type || 'libre',
+      mood: mood || '🌿',
+      takeaway: takeaway || '',
+      date: new Date().toISOString()
+    };
+
+    await dbAdd('blog', entry);
+
+    document.getElementById('blogTitle').value = '';
+    document.getElementById('blogContent').value = '';
+    document.getElementById('blogTakeaway').value = '';
+    document.getElementById('blogMood').value = '';
+    selectedMood = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+
+    await loadBlogEntries();
+    alert('✅ Página guardada en tu historia');
+  } catch (err) {
+    console.error('Error guardando entrada:', err);
+    alert('Error al guardar. Intenta de nuevo.');
+  }
+}
+
+async function loadBlogEntries() {
+  if (!db) return;
+
+  try {
+    const entries = await dbGetAll('blog');
+    const container = document.getElementById('blogEntries');
+    const statsCard = document.getElementById('blogStats');
+    const statsNumber = document.getElementById('blogStatsNumber');
+    const statsMessage = document.getElementById('blogStatsMessage');
+
+    if (entries.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 30px;">📖 Tu libro de vida está esperando la primera página. Escribe sin miedo.</p>';
+      if (statsCard) statsCard.style.display = 'none';
+      return;
+    }
+
+    if (statsCard) {
+      statsCard.style.display = 'block';
+      statsNumber.textContent = entries.length;
+      statsMessage.textContent = getBlogStatsMessage(entries.length);
+    }
+
+    container.innerHTML = entries.slice().reverse().map(entry => {
+      const typeLabel = blogTypeLabels[entry.type] || '💭 Libre';
+      const mood = entry.mood || '🌿';
+      const takeaway = entry.takeaway ? `
+        <div class="blog-entry-takeaway">
+          <span>🎁</span>
+          <span>${escapeHtml(entry.takeaway)}</span>
+        </div>
+      ` : '';
+      return `
+      <div class="blog-entry">
+        <div class="blog-entry-header">
+          <span class="blog-entry-type">${typeLabel}</span>
+          <span class="blog-entry-mood">${mood}</span>
+        </div>
+        <div class="blog-entry-title">${escapeHtml(entry.title)}</div>
+        <div class="blog-entry-date">${formatDate(entry.date)}</div>
+        <div class="blog-entry-content">${escapeHtml(entry.content)}</div>
+        ${takeaway}
+        <div class="blog-entry-actions">
+          <button class="btn btn-danger" onclick="deleteBlogEntry(${entry.id})" style="padding: 6px 12px; font-size: 0.85em;">🗑️ Eliminar</button>
+        </div>
+      </div>
+    `}).join('');
+  } catch (err) {
+    console.error('Error cargando bitácora:', err);
+    document.getElementById('blogEntries').innerHTML = '<p style="color: var(--danger); text-align: center; padding: 20px;">Error al cargar entradas. Intenta recargar la página.</p>';
+  }
+}
+
+async function deleteBlogEntry(id) {
+  if (!confirm('¿Eliminar esta entrada?')) return;
+  await dbDelete('blog', id);
+  loadBlogEntries();
+}
+
+function handleImageUpload(files) {
+  const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+
+  if (imageFiles.length === 0) {
+    alert('Por favor selecciona imágenes válidas');
+    return;
+  }
+
+  images = imageFiles.map(file => ({
+    url: URL.createObjectURL(file),
+    name: file.name
+  }));
+
+  currentImageIndex = 0;
+  showImage(currentImageIndex);
+  document.getElementById('imageViewerWrap').style.display = 'flex';
+}
+
+function showImage(index) {
+  if (images.length === 0) return;
+  document.getElementById('imageViewer').src = images[index].url;
+  document.getElementById('imagePageInfo2').textContent = `${index + 1} / ${images.length}`;
+}
+
+function nextImage() {
+  if (images.length === 0) return;
+  currentImageIndex = (currentImageIndex + 1) % images.length;
+  showImage(currentImageIndex);
+}
+
+function prevImage() {
+  if (images.length === 0) return;
+  currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+  showImage(currentImageIndex);
+}
+
+function toggleImageFullscreen() {
+  const container = document.getElementById('imageViewerWrap');
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(err => console.log(err));
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function handleCsvUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const text = event.target.result;
+    parseCsv(text);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/);
+  flashcards = [];
+
+  let i = 0;
+  if (lines.length > 0 && lines[0].toLowerCase().includes('pregunta')) {
+    i = 1;
+  }
+
+  for (; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const parsed = parseCsvLine(line);
+    if (parsed.length >= 2) {
+      const pregunta = parsed[0].trim();
+      const respuesta = parsed[1].trim();
+
+      if (pregunta && respuesta) {
+        flashcards.push({ pregunta, respuesta });
+      }
+    }
+  }
+
+  if (flashcards.length === 0) {
+    alert('No se pudieron cargar tarjetas. Verifica el formato del CSV.');
+    return;
+  }
+
+  document.getElementById('flashcardModule').style.display = 'block';
+  document.getElementById('flashcardStats').textContent = 
+    `✅ ${flashcards.length} tarjetas cargadas correctamente`;
+
+  renderBlockSelector();
+  loadBlock(1);
+}
+
+function parseCsvLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+
+  return result;
+}
+
+function renderBlockSelector() {
+  const container = document.getElementById('blockSelector');
+  const totalBlocks = Math.ceil(flashcards.length / 10);
+
+  let html = '';
+  for (let i = 1; i <= totalBlocks; i++) {
+    const start = (i - 1) * 10 + 1;
+    const end = Math.min(i * 10, flashcards.length);
+    html += `<button class="block-btn" onclick="loadBlock(${i})" id="blockBtn${i}">Bloque ${i} (${start}-${end})</button>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function loadBlock(blockNumber) {
+  const start = (blockNumber - 1) * 10;
+  currentCards = flashcards.slice(start, start + 10);
+  currentCardIndex = 0;
+
+  document.querySelectorAll('.block-btn').forEach(btn => btn.classList.remove('active'));
+  const btn = document.getElementById(`blockBtn${blockNumber}`);
+  if (btn) btn.classList.add('active');
+
+  renderCard();
+}
+
+function loadRandomCards() {
+  if (flashcards.length === 0) {
+    alert('Primero carga las tarjetas desde el CSV');
+    return;
+  }
+
+  const shuffled = [...flashcards].sort(() => Math.random() - 0.5);
+  currentCards = shuffled.slice(0, Math.min(10, shuffled.length));
+  currentCardIndex = 0;
+
+  document.querySelectorAll('.block-btn').forEach(btn => btn.classList.remove('active'));
+
+  renderCard();
+}
+
+function renderCard() {
+  if (currentCards.length === 0) return;
+
+  const card = currentCards[currentCardIndex];
+  document.getElementById('cardFront').textContent = card.pregunta;
+  document.getElementById('cardBack').textContent = card.respuesta;
+  document.getElementById('cardCounter').textContent = `${currentCardIndex + 1} / ${currentCards.length}`;
+
+  document.getElementById('flashcard').classList.remove('flipped');
+}
+
+function flipCard() {
+  document.getElementById('flashcard').classList.toggle('flipped');
+}
+
+function nextCard() {
+  if (currentCardIndex < currentCards.length - 1) {
+    currentCardIndex++;
+    renderCard();
+  }
+}
+
+function prevCard() {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    renderCard();
+  }
+}
+
+async function handlePresUpload(files) {
+  const file = files[0];
+  if (!file) return;
+
+  if (file.type === 'application/pdf') {
+    const arrayBuffer = await file.arrayBuffer();
+
+    try {
+      presDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      presTotalPages = presDoc.numPages;
+      presCurrentPage = 1;
+
+      document.getElementById('presContainer').style.display = 'block';
+      renderPresPage(presCurrentPage);
+    } catch (err) {
+      console.error('Error al cargar presentación:', err);
+      alert('Error al cargar la presentación.');
+    }
+  } else {
+    alert('Por favor convierte tu presentación a PDF para visualizarla.');
+  }
+}
+
+async function renderPresPage(pageNum) {
+  if (!presDoc) return;
+
+  const page = await presDoc.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 1.5 });
+
+  const viewer = document.getElementById('presViewer');
+  viewer.innerHTML = '';
+
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  viewer.appendChild(canvas);
+
+  await page.render({
+    canvasContext: context,
+    viewport: viewport
+  }).promise;
+
+  document.getElementById('presPageInfo2').textContent = `${presCurrentPage} / ${presTotalPages}`;
+}
+
+function presPrevPage() {
+  if (!presDoc || presCurrentPage <= 1) return;
+  presCurrentPage--;
+  renderPresPage(presCurrentPage);
+}
+
+function presNextPage() {
+  if (!presDoc || presCurrentPage >= presTotalPages) return;
+  presCurrentPage++;
+  renderPresPage(presCurrentPage);
+}
+
+function togglePresFullscreen() {
+  const container = document.getElementById('presContainer');
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(err => console.log(err));
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// Listener para presentación en fullscreen
+function initPresFullscreenListener() {
+  document.addEventListener('fullscreenchange', () => {
+    const presBar = document.getElementById('presPageBar');
+    if (presBar) {
+      if (document.fullscreenElement && document.fullscreenElement.id === 'presContainer') {
+        presBar.style.position = 'fixed';
+        presBar.style.bottom = '20px';
+        presBar.style.left = '0';
+        presBar.style.right = '0';
+        presBar.style.zIndex = '100';
+        presBar.style.margin = '0';
+        document.fullscreenElement.appendChild(presBar);
+      } else {
+        presBar.style.position = '';
+        presBar.style.bottom = '';
+        presBar.style.left = '';
+        presBar.style.right = '';
+        presBar.style.zIndex = '';
+        presBar.style.margin = '';
+        const parent = document.getElementById('module-presentacion');
+        if (parent && !parent.contains(presBar)) {
+          parent.appendChild(presBar);
+        }
+      }
+    }
+  });
+}
+
+function sendWhatsApp() {
+  const name = document.getElementById('commName').value.trim();
+  const phone = document.getElementById('commPhone').value.trim();
+  const message = document.getElementById('commMessage').value.trim();
+
+  if (!name || !phone || !message) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
+
+  const fullMessage = `Hola Marco, soy ${name}.\n\nTeléfono: ${phone}\n\n${message}`;
+  const encoded = encodeURIComponent(fullMessage);
+  const whatsappUrl = `https://wa.me/5215522685235?text=${encoded}`;
+
+  saveCommToHistory(name, phone, message);
+
+  window.open(whatsappUrl, '_blank');
+
+  document.getElementById('commName').value = '';
+  document.getElementById('commPhone').value = '';
+  document.getElementById('commMessage').value = '';
+}
+
+function saveOnly() {
+  const name = document.getElementById('commName').value.trim();
+  const phone = document.getElementById('commPhone').value.trim();
+  const message = document.getElementById('commMessage').value.trim();
+
+  if (!name || !phone || !message) {
+    alert('Por favor completa todos los campos');
+    return;
+  }
+
+  saveCommToHistory(name, phone, message);
+
+  document.getElementById('commName').value = '';
+  document.getElementById('commPhone').value = '';
+  document.getElementById('commMessage').value = '';
+
+  alert('✅ Mensaje guardado en el historial');
+}
+
+async function saveCommToHistory(name, phone, message) {
+  const entry = {
+    name: name,
+    phone: phone,
+    message: message,
+    date: new Date().toISOString()
+  };
+
+  await dbAdd('communication', entry);
+  loadCommHistory();
+}
+
+async function loadCommHistory() {
+  if (!db) return;
+
+  try {
+    const entries = await dbGetAll('communication');
+    const container = document.getElementById('commHistory');
+
+    if (entries.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 20px;">No hay mensajes en el historial</p>';
+      return;
+    }
+
+    container.innerHTML = entries.slice().reverse().map(entry => `
+      <div class="history-item">
+        <div class="history-item-header">
+          <span><strong>${escapeHtml(entry.name)}</strong> · ${escapeHtml(entry.phone)}</span>
+          <span>${formatDate(entry.date)}</span>
+        </div>
+        <div>${escapeHtml(entry.message)}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Error cargando historial:', err);
+  }
+}
+
+function initSystemInfo() {
+  const now = new Date();
+  document.getElementById('systemDate').textContent = now.toLocaleDateString('es-MX', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const ua = navigator.userAgent;
+  let browser = 'Desconocido';
+  if (ua.includes('Edg')) browser = 'Edge';
+  else if (ua.includes('Chrome')) browser = 'Chrome';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Safari')) browser = 'Safari';
+
+  document.getElementById('browserInfo').textContent = browser;
+}
+
+async function exportData() {
+  if (!db) {
+    alert('La base de datos no está lista');
+    return;
+  }
+
+  const blog = await dbGetAll('blog');
+  const communication = await dbGetAll('communication');
+
+  const data = {
+    version: '1.2.0',
+    exportDate: new Date().toISOString(),
+    blog: blog,
+    communication: communication
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `el-puente-backup-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  alert('✅ Datos exportados correctamente');
+}
+
+function importData() {
+  document.getElementById('importInput').click();
+}
+
+async function handleImportFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+
+      if (!confirm('¿Importar datos? Esto agregará los datos importados a los existentes.')) return;
+
+      if (data.blog) {
+        for (const entry of data.blog) {
+          delete entry.id;
+          await dbAdd('blog', entry);
+        }
+      }
+
+      if (data.communication) {
+        for (const entry of data.communication) {
+          delete entry.id;
+          await dbAdd('communication', entry);
+        }
+      }
+
+      loadBlogEntries();
+      loadCommHistory();
+
+      alert('✅ Datos importados correctamente');
+    } catch (err) {
+      alert('Error al importar: archivo inválido');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  showConfirm('¿Estás seguro?', 'Esta acción eliminará TODOS tus datos (bitácora, historial de mensajes, etc.) y no se puede deshacer.', async () => {
+    await dbClear('blog');
+    await dbClear('communication');
+    loadBlogEntries();
+    loadCommHistory();
+    alert('✅ Todos los datos han sido eliminados');
+  });
+}
+
+function showConfirm(title, text, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  document.getElementById('confirmModal').classList.add('active');
+  confirmCallback = callback;
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('active');
+  confirmCallback = null;
+}
+
+function confirmAction() {
+  if (confirmCallback) confirmCallback();
+  closeConfirm();
+}
+
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+      e.preventDefault();
+      togglePlay();
+    }
+
+    if (e.key === 'ArrowLeft') {
+      if (currentModule === 'tarjetas') prevCard();
+      else if (currentModule === 'libro') pdfPrevPage();
+      else if (currentModule === 'presentacion') presPrevPage();
+      else if (currentModule === 'infografia') prevImage();
+      else if (currentModule === 'videos') prevVideo();
+    }
+    if (e.key === 'ArrowRight') {
+      if (currentModule === 'tarjetas') nextCard();
+      else if (currentModule === 'libro') pdfNextPage();
+      else if (currentModule === 'presentacion') presNextPage();
+      else if (currentModule === 'infografia') nextImage();
+      else if (currentModule === 'videos') nextVideo();
+    }
+
+    if (e.key === 'f' || e.key === 'F') {
+      if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        if (currentModule === 'libro') togglePdfFullscreen();
+        else if (currentModule === 'videos') toggleVideoFullscreen();
+        else if (currentModule === 'infografia') toggleImageFullscreen();
+        else if (currentModule === 'presentacion') togglePresFullscreen();
+      }
+    }
+
+    if (e.key === 'Escape') {
+      closeConfirm();
+    }
+  });
+}
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+function formatDate(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleString('es-MX', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+</script>
+
+</body>
+</html>
